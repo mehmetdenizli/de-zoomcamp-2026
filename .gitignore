@@ -1,0 +1,13 @@
+# Data files
+*.parquet
+*.csv
+ny_taxi_data/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+
+# Credentials
+*.json
