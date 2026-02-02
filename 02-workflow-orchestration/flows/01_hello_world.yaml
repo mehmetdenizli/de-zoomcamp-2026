@@ -1,0 +1,40 @@
+id: 01_hello_world
+namespace: zoomcamp
+
+inputs:
+  - id: name
+    type: STRING
+    defaults: "Zoomcamper"
+
+variables:
+  greeting: "Hello, {{ inputs.name }}!"
+
+tasks:
+  - id: log_message
+    type: io.kestra.plugin.core.log.Log
+    message: "{{ vars.greeting }}"
+
+  - id: sleep
+    type: io.kestra.plugin.core.flow.Sleep
+    duration: PT2S
+
+  - id: return_message
+    type: io.kestra.plugin.core.debug.Return
+    format: "{{ vars.greeting }} - Execution successful!"
+
+  - id: log_output
+    type: io.kestra.plugin.core.log.Log
+    message: "{{ outputs.return_message.value }}"
+
+triggers:
+  - id: daily_schedule
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 10 * * *"
+
+pluginDefaults:
+  - type: io.kestra.plugin.core.log.Log
+    values:
+      level: INFO
+
+concurrency:
+  limit: 2
