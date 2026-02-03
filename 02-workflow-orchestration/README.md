@@ -282,9 +282,59 @@ Finalizing the "Load" phase of the ELT strategy by migrating NYC Taxi data from 
 The successful execution via the Backfill UI confirms that the system correctly resolves the `{{trigger.date}}` context and processes the data directly into the Google Cloud environment.
 
 ![Backfill Execution Success](image-11.png)
+
 *Caption: Successful execution of the scheduled flow via the Backfill UI, correctly resolving all temporal variables and populating BigQuery.*
 
 ---
 
-### ✅ Final Summary:
-With this setup, the "Extract & Load" phase of the ELT process is fully production-ready. The system handles historical data through backfills while ensuring future data is ingested automatically every month.
+## 🔄 Final Step: Data Ingestion Summary (Backfill Operations)
+
+To achieve the required row counts for the Module 2 Homework, the following backfill operations were successfully executed using the `09_gcp_taxi_scheduled` flow:
+
+| Dataset | Start Date | End Date | Purpose |
+| :--- | :--- | :--- | :--- |
+| **Yellow Taxi** | `2020-01-01` | `2020-12-31` | To calculate the total yearly volume for 2020 (Question 3) |
+| **Green Taxi** | `2020-01-01` | `2020-12-31` | To calculate the total yearly volume for 2020 (Question 4) |
+| **Yellow Taxi** | `2021-01-01` | `2021-07-31` | To isolate the March 2021 partition for specific audit (Question 5) |
+
+### 🛠️ Key Implementation Details:
+* **Sequential Execution:** Each backfill was triggered independently to ensure stable resource allocation in the Kestra worker.
+* **Resiliency:** The `allow_jagged_rows = TRUE` flag was implemented in the BigQuery external table options to handle malformed CSV lines in the 2021-03 dataset.
+* **Data Integrity:** Final counts were verified only after the Kestra UI progress bar reached 100% and all monthly executions transitioned to the `SUCCESS` state.
+
+ ## 🤖 Step 17.22: Detailed AI Integration Guide
+ This section documents the integration of Google Gemini AI into Kestra.
+ ### 🛠️ Step 2.5.1: Gemini API Provisioning
+ Created a unique API Key via Google AI Studio for model interfacing.
+ Authenticated through a secure Google account to access the free tier.
+ Ensured the key was never committed to public repositories for security.
+ ### ⚙️ Step 2.5.2: Infrastructure Configuration
+ Updated the docker-compose.yml file to include the Gemini API configuration.
+ Added the KESTRA_CONFIGURATION block to define the model and key.
+ Used 'models/gemini-1.5-flash' or 'gemini-2.0-flash' as the model-name.
+ Injected the API key directly into the YAML for local development activation.
+ Restarted services using 'docker compose up -d' to apply the new AI settings.
+ ### ✨ Step 2.5.3: AI Copilot Implementation
+ Accessed the AI Copilot via the sparkle icon (✨) in the Kestra UI editor.
+ Used natural language prompts to generate Extract-Load-Transform (ELT) flows.
+ Verified that Copilot uses current Kestra plugin types like 'io.kestra.plugin.gcp'.
+ Confirmed the generated YAML follows the latest Kestra property standards.
+ ### 🧪 Step 2.5.4: RAG (Retrieval Augmented Generation) Analysis
+ Ran '10_chat_without_rag.yaml' to identify potential model hallucinations.
+ Executed '11_chat_with_rag.yaml' to provide the LLM with real documentation context.
+ Observed that RAG-grounded responses were significantly more accurate and detailed.
+ Verified that embeddings were correctly stored and retrieved from the KV Store.
+ ### 🔍 Step 2.5.5: Troubleshooting & Quota Management
+ Resolved '404 NOT_FOUND' errors by correcting the specific model-name URI.
+ Handled '429 RESOURCE_EXHAUSTED' errors by implementing manual wait times.
+ Monitored API quotas in Google AI Studio to stay within free tier limits.
+ Verified that a 60-second delay allows the API token bucket to refill.
+
+
+## 🔑 Step 17.24: Securing Credentials via KV Store
+Resolving "PebbleException: Key does not exist" by implementing Kestra's internal Key-Value storage.
+
+### 🛠️ Implementation:
+- **Namespace Isolation:** Created the `GEMINI_API_KEY` entry specifically within the `zoomcamp` namespace.
+- **Dynamic Reference:** Migrated the RAG flow logic from hardcoded strings to dynamic lookups using the `{{ kv(...) }}` function.
+- **Security Benefit:** Successfully decoupled sensitive API credentials from the workflow YAML, allowing for safe repository commits.
